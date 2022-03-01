@@ -1,0 +1,31 @@
+.flex-horizontal * {
+    margin-right: 5px;
+}
+
+.input-control-sm .form-control{
+    height: calc(1.5em + 0.5rem + 2px);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+.input-control-sm .form-control, .input-control-sm .custom-select, .input-control-sm .input-group-prepend > .input-group-text, .input-control-sm .input-group-append > .input-group-text, .input-control-sm .input-group-prepend > .btn, .input-control-sm .input-group-append > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+.input-control-sm .form-group{
+    margin-bottom:5px;
+}
+.input-control-sm .el-input__inner{
+    height: calc(1.5em + 0.5rem + 2px);
+    padding: 0.25rem 0.5rem;
+}
+.input-control-sm .el-input__icon {
+    line-height: 33px;
+}
+.sidebar-wrapper .metismenu ul{display: none;}
+.sidebar-wrapper .metismenu ul.mm-show{display: block;}
+
+.single-upload[length="1"] .el-upload--picture-card{display: none;}
