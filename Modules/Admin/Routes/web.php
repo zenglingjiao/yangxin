@@ -149,6 +149,18 @@ Route::prefix('admin')->group(function () {
     Route::get('users_points_deal', 'UsersPointsDealController@index')->name("users_points_deal_index");
     //商圈點數發放管理
     Route::get('points_grant', 'PointsGrantController@index')->name("points_grant_index");
+    //店家廣告
+    Route::get('store_advertising', 'StoreAdvertisingController@index')->name("store_advertising_index");
+    Route::get('store_advertising_edit/{id?}', 'StoreAdvertisingController@edit')->name("store_advertising_edit");
+    //電商廣告
+    Route::get('ec_advertising', 'EcAdvertisingController@index')->name("ec_advertising_index");
+    Route::get('ec_advertising_edit/{id?}', 'EcAdvertisingController@edit')->name("ec_advertising_edit");
+    //推播管理
+    Route::get('push_broadcast', 'PushBroadcastController@index')->name("push_broadcast_index");
+    Route::get('push_broadcast_edit/{id?}', 'PushBroadcastController@edit')->name("push_broadcast_edit");
+    //自動寄送模板管理
+    Route::get('send_template', 'SendTemplateController@index')->name("send_template_index");
+    Route::get('send_template_edit/{id?}', 'SendTemplateController@edit')->name("send_template_edit");
 //-----------------------------------------分割線--------------------------------------------------------
 //-----------------------------------------分割線--------------------------------------------------------
 //-----------------------------------------分割線--------------------------------------------------------
@@ -403,6 +415,27 @@ Route::prefix('admin')->group(function () {
         Route::post('users_points_deal/list', 'UsersPointsDealController@list')->name("users_points_deal_list");
         //商圈點數發放管理
         Route::post('points_grant/list', 'PointsGrantController@list')->name("points_grant_list");
+
+        //店家廣告管理
+        Route::post('store_advertising/list', 'StoreAdvertisingController@list')->name("store_advertising_list");
+        Route::post('store_advertising/update', 'StoreAdvertisingController@update')->name("store_advertising_update");
+        Route::post('store_advertising/status', 'StoreAdvertisingController@status')->name("store_advertising_status");
+         Route::post('store_advertising/del', 'StoreAdvertisingController@del')->name("store_advertising_del");
+
+         //電商廣告管理
+        Route::post('ec_advertising/list', 'EcAdvertisingController@list')->name("ec_advertising_list");
+        Route::post('ec_advertising/update', 'EcAdvertisingController@update')->name("ec_advertising_update");
+        Route::post('ec_advertising/status', 'EcAdvertisingController@status')->name("ec_advertising_status");
+         Route::post('ec_advertising/del', 'EcAdvertisingController@del')->name("ec_advertising_del");
+
+         //推播管理
+        Route::post('push_broadcast/list', 'PushBroadcastController@list')->name("push_broadcast_list");
+        Route::post('push_broadcast/update', 'PushBroadcastController@update')->name("push_broadcast_update");
+
+         //自動寄送模板管理
+        Route::post('send_template/list', 'SendTemplateController@list')->name("send_template_list");
+        Route::post('send_template/update', 'SendTemplateController@update')->name("send_template_update");
+
     });
 });
 

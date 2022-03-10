@@ -5,15 +5,6 @@
     @include('admin::partials._include_head', ['title' => $title])
 </head>
 <body>
-<style>
-    .el-table .warning-row {
-        background: oldlace;
-    }
-
-    /*.el-table .success-row {*/
-    /*  background: #f0f9eb;*/
-    /*}*/
-</style>
 <!-- wrapper -->
 <div class="wrapper" id="vue_html" v-cloak>
 @include('admin::partials._include_header_aside')
@@ -55,30 +46,7 @@
                             </el-select>
                         </div>
                     </div>
-                    <!-- <div class="list-item">
 
-                        <div class="list-item-box">
-                            <el-date-picker
-                                    v-model="model.start_time"
-                                    type="date"
-                                    placeholder="建立開始時間"
-                                    format="yyyy-MM-dd"
-                                    value-format="yyyy-MM-dd">
-                            </el-date-picker>
-                            -
-                            <div class="list-item-box">
-                                <el-date-picker
-                                        v-model="model.end_time"
-                                        type="date"
-                                        placeholder="建立結束時間"
-                                        format="yyyy-MM-dd"
-                                        value-format="yyyy-MM-dd">
-                                </el-date-picker>
-
-                            </div>
-
-                        </div>
-                    </div> -->
                     <div class="list-item-right-btn ml-auto">
                         <button type="button" @click="clean_form()" class="btn btn-light">清除</button>
                         <button type="button" @click="model.page=1;model.total=0;get_table_data()" class="btn btn-info">
@@ -96,34 +64,41 @@
                     </div>
                     <div class="table-responsive">
                         <div class="my-el-table">
-                            <el-table :data="table_data" highlight-current-row border
+                            <el-table :data="table_data" stripe highlight-current-row border
                                       style="width: 100%;"
                                       size="mini"
                                       v-loading="loading"
-                                      :row-class-name="tableRowClassName"
-                                {{--                                      row-class-name="my-el-tr"--}}
-                            >
+                                      row-class-name="my-el-tr">
                                 <template slot="empty">
                                     無符合條件記錄
                                 </template>
 
-                                <el-table-column header-align="center" align="center" prop="scenario_sort" label="店家編號">
+                                <el-table-column header-align="center" align="center" prop="ad_sort"
+                                                 label="排序"></el-table-column>
+                                <el-table-column header-align="center" align="center" prop="name"
+                                                 label="廣告名稱"></el-table-column>
+                                <el-table-column header-align="center" align="center" prop="imgs" label="廣告圖片">
                                     <template slot-scope="scope">
-                                        @{{scope.row.store_info.store_no}}
+                                        <img @click="dialog_visible = true;dialog_image_url = scope.row.imgs;"
+                                             :src="scope.row.imgs" style="height: 50px"/>
                                     </template>
                                 </el-table-column>
-                                <el-table-column header-align="center" align="center" prop="scenario_name" label="公司名稱">
+                                <el-table-column header-align="center" align="center" prop="up_at"
+                                                 label="上架時間">
                                     <template slot-scope="scope">
-                                        @{{scope.row.store_info.company_name}}
+                                        @{{scope.row.up_at.join('~')}}
                                     </template>
                                 </el-table-column>
-                                <el-table-column header-align="center" align="center" prop="store_info.corporate_brand" label="公司品牌"></el-table-column>
-                                <el-table-column header-align="center" align="center" prop="store_info.industry_info.name" label="產業別"></el-table-column>
-                                <el-table-column header-align="center" align="center" prop="store_info.tax_id" label="統一編號"></el-table-column>
-                                <el-table-column header-align="center" align="center" prop="status"
-                                                 label="狀態">
+                                <el-table-column header-align="center" align="center" prop="status" label="狀態">
                                     <template slot-scope="scope">
-                                        @{{['待審核','審核通過','審核失敗'][scope.row.status]}}
+                                        <el-switch
+                                            v-model="scope.row.status"
+                                            @change="change_switch(scope.row.id,scope.row.status)"
+                                            :active-value=1
+                                            :inactive-value=0
+                                            active-color="#13ce66"
+                                            inactive-color="#ff4949">
+                                        </el-switch>
                                     </template>
                                 </el-table-column>
                                 <el-table-column header-align="center" align="center" label="操作">
@@ -131,13 +106,12 @@
                                         <el-button
                                             size="mini"
                                             type="primary"
-                                            @click="edit_model(scope.$index, scope.row)">
-                                            <template v-if="scope.row.status == 0">
-                                                編輯
-                                            </template>
-                                            <template v-else>
-                                                查看
-                                            </template>
+                                            @click="edit_model(scope.$index, scope.row)">編輯
+                                        </el-button>
+                                        <el-button
+                                            size="mini"
+                                            type="danger"
+                                            @click="del_model(scope.$index, scope.row)">刪除
                                         </el-button>
                                     </template>
                                 </el-table-column>
@@ -156,10 +130,12 @@
                         </div>
                     </div>
 
-
                 </div>
             </div>
         </div>
+        <el-dialog :visible.sync="dialog_visible">
+            <div style="text-align: center;"><img :src="dialog_image_url" style="max-width: 100%;" alt=""></div>
+        </el-dialog>
         @include('admin::partials._include_vue_body')
     </div>
     <!--end page-content-wrapper-->
@@ -186,15 +162,19 @@
                 page_sizes: [10, 20, 50, 100, 200, 300, 500],
                 limit: 10,
             },
-            dialogVisible: false,
+            dialog_visible: false,
+            dialog_image_url: '',
             table_data: [],
             multiple_selection: [],
             loading: false,
             clean_model: {},
-            history_name: "store_change_list",
-            api_get_tabel: "{{route('store_change_list')}}",
-            api_model_index: "{{route('store_change_index')}}",
-            api_model_edit: "{{route('store_change_edit')}}",
+            history_name: "ec_advertising_list",
+            api_get_tabel: "{{route('ec_advertising_list')}}",
+            api_model_index: "{{route('ec_advertising_index')}}",
+            api_model_edit: "{{route('ec_advertising_edit')}}",
+            api_table_status: "{{route('ec_advertising_status')}}",
+            api_model_delete: "{{route('ec_advertising_del')}}",
+
         },
         created: function () {
             check_login('{{route('login')}}');
@@ -208,13 +188,6 @@
             this.get_table_data();
         },
         methods: {
-            tableRowClassName({row, rowIndex}) {
-                if (row.status == 0) {
-                    return 'warning-row';
-                } else {
-                    return 'my-el-tr';
-                }
-            },
             get_table_data: function () {
                 save_web_temp_data(this.history_name, this.model);
                 this.loading = true;
@@ -259,6 +232,11 @@
 
                 window.location.href = this.api_model_edit + "/" + row.id;
             },
+
+            edit_model_branch: function (index, row) {
+
+                window.location.href = "{{route('branch')}}" + "/" + row.id;
+            },
             list_model: function (index, row) {
 
                 window.location.href = this.api_model_index + "/" + row.id;
@@ -269,6 +247,34 @@
                 } else {
                     return "";
                 }
+            },
+            change_switch: function (id, status) {
+                this.loading = true;
+                var that = this;
+                request_ajax_json(this.api_table_status, {
+                    id: id,
+                    status: status,
+                }, function (response) {
+                    if (response.status) {
+                        switch (response.status) {
+                            case 20000:
+                                that.loading = false;
+                                break;
+                            default:
+                                // 响应错误回调
+                                that.loading = false;
+                                that.$message({
+                                    type: 'warning',
+                                    message: response.message
+                                });
+                                that.get_table_data();
+                                break;
+                        }
+                    }
+                }, function () {
+                    that.loading = false;
+                    that.get_table_data();
+                })
             },
             save_data: function () {
 
@@ -300,6 +306,62 @@
                 this.model = deep_copy(this.clean_model);
                 save_web_temp_data(this.history_name, this.model);
                 this.get_table_data();
+            },
+            del_model: function (index, row) {
+                var selectid = [];
+                if (row && row.id > 0) {
+                    selectid.push(row.id);
+                } else {
+                    this.multiple_selection.forEach(function (item) {
+                        selectid.push(item.id);
+                    });
+                    if (!selectid.length > 0) {
+                        Swal.fire("請至少選擇一條記錄");
+                        return false;
+                    }
+                }
+                var that = this;
+                Swal.fire({
+                    title: '確定刪除資料?',
+                    text: "刪除後無法還原!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: '刪除',
+                    cancelButtonText: '取消',
+                }).then(function (result) {
+                    if (result.value) {
+                        that.loading = true;
+                        request_ajax_json(that.api_model_delete, {
+                            ids: selectid,
+                        }, function (response) {
+                            if (response.status) {
+                                that.loading = false;
+                                switch (response.status) {
+                                    case 20000:
+                                        that.$message({
+                                            type: 'success',
+                                            message: response.message
+                                        });
+                                        that.get_table_data();
+                                        break;
+                                    default:
+                                        // 响应错误回调
+                                        that.$message({
+                                            type: 'warning',
+                                            message: response.message
+                                        });
+                                        that.get_table_data();
+                                        break;
+                                }
+                            }
+                        }, function () {
+                            that.loading = false;
+                            that.get_table_data();
+                        })
+                    }
+                })
             },
 
 
